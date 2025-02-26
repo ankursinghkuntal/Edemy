@@ -2,6 +2,7 @@ import { clerkClient } from "@clerk/express";
 import Course from "../modals/Course.js";
 import {v2 as cloudinary} from 'cloudinary'
 import { Purchase } from "../modals/Purchase.js";
+import User from "../modals/User.js";
 
 // update role to educator
 export const updateRoleToEducator = async (req, res) => {
@@ -48,7 +49,7 @@ export const addCourse = async (req, res) => {
         
         const newCourse = await Course.create(parsedCourseData)
 
-        console.log(imageFile.path);
+        // console.log(imageFile.path);
         
         const imageUpload = await cloudinary.uploader.upload(imageFile.path);
         newCourse.courseThumbnail = imageUpload.secure_url
@@ -79,7 +80,7 @@ export const getEducatorCourses = async (req,res) => {
 
 //Get Educator Dashboard Data
 
-export const educatorDashboardData = async () => {
+export const educatorDashboardData = async (req, res) => {
     try {
         
         const educator = req.auth.userId

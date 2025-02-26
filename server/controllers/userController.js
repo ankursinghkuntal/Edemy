@@ -13,6 +13,9 @@ export const getUserData = async (req, res) => {
         const userId = req.auth.userId
         const user = await User.findById(userId)
 
+        console.log("Fetched user:", user);
+
+
         if(!user){
             return res.json({success: false, message: 'User not found'})
         }
@@ -27,19 +30,28 @@ export const getUserData = async (req, res) => {
 //  user enrolled courses with lecture link
 export const userEnrolledCourses = async (req, res) => {
     console.log("userEnrolledCourses");
-    
-    try {
-        
-        const userId = req.auth.userId
-        const userData = await User.findById(userId).populate('enrolledCourses')   
-        
-        res.json({success: true, enrolledCourses: userData.enrolledCourses})
-        
-    } catch (error) {
-        res.json({success: false, message: error.message})
-    }
-}
 
+    try {
+        const userId = req.auth?.userId; // Ensure `userId` exists
+        if (!userId) {
+            return res.json({ success: false, message: "Unauthorized: No user ID found" });
+        }
+
+        const userData = await User.findById(userId).populate("enrolledCourses");
+
+        if (!userData) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        // console.log("User Data:", userData); // Debugging
+
+        res.json({ success: true, enrolledCourses: userData.enrolledCourses || [] });
+
+    } catch (error) {
+        console.error("Error fetching enrolled courses:", error); // Log error
+        res.json({ success: false, message: error.message });
+    }
+};
 
 
 // tO PURCHASE A COURSE
@@ -166,9 +178,9 @@ export const addUserRating = async (req, res) => {
     const userId = req.auth.userId
     const {courseId, rating} = req.body;
 
-    if(!courseId || !userId || !rating || ! rating < 1 || rating > 5){
-        return res.json({success: false, messsage: 'Invalid Details'});
-    }
+    if (!courseId || !userId || rating < 1 || rating > 5) {
+        return res.json({ success: false, message: 'Invalid Details' });
+    }    
 
     try {
         
